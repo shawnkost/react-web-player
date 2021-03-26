@@ -20,7 +20,9 @@ export default function Player({ accessToken, trackUri }) {
       play={play}
       uris={trackUri ? [trackUri] : []}
       styles={{
-        sliderColor: "#4361ee",
+        sliderColor: "#1BD661",
+        bgColor: 'rgba(255, 255, 255, .15)',
+        // backdrop-filter: blur(5px);
       }}
     />
   );
