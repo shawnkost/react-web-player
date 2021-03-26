@@ -11,29 +11,38 @@ export default function Dashboard(props) {
   const accessToken = useAuth(props.code);
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  console.log(searchResults);
 
   useEffect(() => {
-    if (!accessToken) return
-    spotifyApi.setAccessToken(accessToken)
-  }, [accessToken])
+    if (!search) return setSearchResults([]);
+    if (!accessToken) return;
 
-  useEffect(() => {
-    if (!search) return setSearchResults([])
-    if (!accessToken) return
+    let cancel = false;
+    spotifyApi.searchTracks(search).then((res) => {
+      if (cancel) return;
+      setSearchResults(
+        res.body.tracks.items.map((track) => {
+          const smallestAlbumImage = track.album.images.reduce(
+            (smallest, image) => {
+              if (image.height < smallest.height) return image;
+              return smallest;
+            },
+            track.album.images[0]
+          );
 
-    spotifyApi.searchTracks(search).then(res => {
-      res.body.tracks.items.map(track => {
-        const smallestAlbumImage = track.album.images.reduce((smallest, image))
+          return {
+            artist: track.artists[0].name,
+            title: track.name,
+            uri: track.uri,
+            albumUrl: smallestAlbumImage.url,
+          };
+        })
+      );
+    });
 
-        return {
-          artist: track.artists[0].name,
-          title: track.name,
-          uri: track.uri,
-          albumUrl: track.albumUrl.images
-        }
-      })
-    })
-  }, [search, accessToken])
+    return () => (cancel = true);
+  }, [search, accessToken]);
+
 
 
   return (
