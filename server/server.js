@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require('cors');
+const lyricsFinder = require("lyrics-finder")
 const SpotifyWebApi = require("spotify-web-api-node");
 const spotifyWebApi = require("spotify-web-api-node");
 
@@ -45,6 +46,12 @@ app.post('/login', (req, res) => {
   }).catch(() => {
     res.sendStatus(400)
   })
+})
+
+app.get('/lyrics', async (req, res) => {
+  const lyrics = await lyricsFinder(req.query.artist, req.query.track) || "No Lyrics Found"
+  console.log("lyrics", lyrics);
+  res.json(lyrics);
 })
 
 app.listen(3001, () => console.log("Express listening on port 3001"))
