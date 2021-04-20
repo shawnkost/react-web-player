@@ -1,40 +1,42 @@
-import React, { useState, useEffect } from "react";
-import useAuth from "./useAuth";
-import Player from "./Player";
-import TrackSearchResult from "./TrackSearchResult";
-import { Container, Form } from "react-bootstrap";
-import SpotifyWebApi from "spotify-web-api-node";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import useAuth from './useAuth';
+import Player from './Player';
+import TrackSearchResult from './TrackSearchResult';
+import { Container, Form } from 'react-bootstrap';
+import SpotifyWebApi from 'spotify-web-api-node';
+import axios from 'axios';
 
 const spotifyApi = new SpotifyWebApi({
-  clientId: "58c63d6c452940378c16d1e4a5a65ee0",
+  clientId: '58c63d6c452940378c16d1e4a5a65ee0'
 });
 
 export default function Dashboard(props) {
   const accessToken = useAuth(props.code);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [playingTrack, setPlayingTrack] = useState();
-  const [lyrics, setLyrics] = useState("");
+  const [lyrics, setLyrics] = useState('');
+
+  console.log('hello');
 
   function chooseTrack(track) {
     setPlayingTrack(track);
-    setSearch("");
-    setLyrics("");
+    setSearch('');
+    setLyrics('');
   }
 
   useEffect(() => {
     if (!playingTrack) return;
 
     axios
-      .get("http://localhost:3001/lyrics", {
+      .get('http://localhost:3001/lyrics', {
         params: {
           track: playingTrack.title,
-          artist: playingTrack.artist,
-        },
+          artist: playingTrack.artist
+        }
       })
-      .then((res) => {
-        console.log("res", res);
+      .then(res => {
+        console.log('res', res);
         setLyrics(res.data);
       });
   }, [playingTrack]);
@@ -49,10 +51,10 @@ export default function Dashboard(props) {
     if (!accessToken) return;
 
     let cancel = false;
-    spotifyApi.searchTracks(search).then((res) => {
+    spotifyApi.searchTracks(search).then(res => {
       if (cancel) return;
       setSearchResults(
-        res.body.tracks.items.map((track) => {
+        res.body.tracks.items.map(track => {
           const smallestAlbumImage = track.album.images.reduce(
             (smallest, image) => {
               if (image.height < smallest.height) return image;
@@ -73,7 +75,7 @@ export default function Dashboard(props) {
             title: track.name,
             uri: track.uri,
             albumUrlSmall: smallestAlbumImage.url,
-            albumUrlBig: biggestAlbumImage.url,
+            albumUrlBig: biggestAlbumImage.url
           };
         })
       );
@@ -83,15 +85,15 @@ export default function Dashboard(props) {
   }, [search, accessToken]);
 
   return (
-    <Container className="d-flex flex-column py-2" style={{ height: "100vh" }}>
+    <Container className="d-flex flex-column py-2" style={{ height: '100vh' }}>
       <Form.Control
         type="search"
         placeholder="Search Songs/Artists"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        onChange={e => setSearch(e.target.value)}
       />
-      <div className="flex-grow-1 my-2" style={{ overflowY: "auto" }}>
-        {searchResults.map((track) => (
+      <div className="flex-grow-1 my-2" style={{ overflowY: 'auto' }}>
+        {searchResults.map(track => (
           <TrackSearchResult
             track={track}
             key={track.uri}
@@ -102,10 +104,10 @@ export default function Dashboard(props) {
           <div
             className="text-center"
             style={{
-              whiteSpace: "pre",
+              whiteSpace: 'pre',
               backgroundImage: `linear-gradient(rgba(15, 15, 15, 0), rgb(21, 21, 21)), linear-gradient(rgba(21, 21, 21, 0.8), rgba(21, 21, 21, 0.5)), url(${playingTrack.albumUrlBig})`,
-              backgroundSize: "cover",
-              color: "white"
+              backgroundSize: 'cover',
+              color: 'white'
             }}
           >
             {lyrics}
